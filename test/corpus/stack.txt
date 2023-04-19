@@ -1,0 +1,30 @@
+==================
+Stack Opcodes
+==================
+
+brk
+pha
+php
+phx
+phy
+pla
+plp
+plx
+ply
+rti
+rts
+---
+
+(source_file
+  (operation (stack))
+  (operation (stack))
+  (operation (stack))
+  (operation (stack))
+  (operation (stack))
+  (operation (stack))
+  (operation (stack))
+  (operation (stack))
+  (operation (stack))
+  (operation (stack))
+  (operation (stack))
+)

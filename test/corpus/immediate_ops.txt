@@ -1,0 +1,31 @@
+==================
+Immediate Opcodes
+==================
+adc #0
+and #0
+bit #0
+cmp #0
+cpx #0
+cpy #0
+eor #0
+lda #0
+ldx #0
+ldy #0
+ora #0
+sbc #0
+---
+
+(source_file
+  (operation (immediate (dec_const)))
+  (operation (immediate (dec_const)))
+  (operation (immediate (dec_const)))
+  (operation (immediate (dec_const)))
+  (operation (immediate (dec_const)))
+  (operation (immediate (dec_const)))
+  (operation (immediate (dec_const)))
+  (operation (immediate (dec_const)))
+  (operation (immediate (dec_const)))
+  (operation (immediate (dec_const)))
+  (operation (immediate (dec_const)))
+  (operation (immediate (dec_const)))
+)

@@ -1,0 +1,17 @@
+==================
+Immediate
+==================
+
+lda #109
+lda #%101011
+lda #$0aFAb9
+lda #%901
+
+---
+
+(source_file
+  (operation (immediate (dec_const)))
+  (operation (immediate (bin_const)))
+  (operation (immediate (hex_const)))
+  (ERROR)
+)
