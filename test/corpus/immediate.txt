@@ -2,16 +2,19 @@
 Immediate
 ==================
 
-lda #109
-lda #%101011
-lda #$0aFAb9
-lda #%901
+lda #%01
+lda #10+5+6
+lda #(((((((((5*5)))))))))
 
 ---
 
 (source_file
-  (operation (immediate (dec_const)))
-  (operation (immediate (bin_const)))
-  (operation (immediate (hex_const)))
-  (ERROR)
+  (operation (immediate (num_literal)))
+  (operation (immediate 
+    (binary_expr
+      (binary_expr (num_literal) (num_literal))
+      (num_literal)
+    )
+  ))
+  (operation (immediate (num_literal)))
 )

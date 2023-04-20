@@ -1,22 +1,37 @@
 [
   {
+    "type": "binary_expr",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "binary_expr",
+          "named": true
+        },
+        {
+          "type": "num_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "immediate",
     "named": true,
     "fields": {},
     "children": {
       "multiple": false,
-      "required": false,
+      "required": true,
       "types": [
         {
-          "type": "bin_const",
+          "type": "binary_expr",
           "named": true
         },
         {
-          "type": "dec_const",
-          "named": true
-        },
-        {
-          "type": "hex_const",
+          "type": "num_literal",
           "named": true
         }
       ]
@@ -84,15 +99,47 @@
     "named": false
   },
   {
-    "type": "bin_const",
+    "type": "&",
+    "named": false
+  },
+  {
+    "type": "(",
+    "named": false
+  },
+  {
+    "type": ")",
+    "named": false
+  },
+  {
+    "type": "*",
+    "named": false
+  },
+  {
+    "type": "+",
+    "named": false
+  },
+  {
+    "type": "-",
+    "named": false
+  },
+  {
+    "type": "/",
+    "named": false
+  },
+  {
+    "type": "<<",
+    "named": false
+  },
+  {
+    "type": ">>",
+    "named": false
+  },
+  {
+    "type": "num_literal",
     "named": true
   },
   {
-    "type": "dec_const",
-    "named": true
-  },
-  {
-    "type": "hex_const",
-    "named": true
+    "type": "|",
+    "named": false
   }
 ]

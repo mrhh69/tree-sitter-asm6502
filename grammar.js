@@ -19,24 +19,48 @@ module.exports = grammar({
     implied: $ => seq($._implied_opcode),
     stack: $ => seq($._stack_opcode),
     relative: $ => seq($._relative_opcode),
-
+    
     immediate: $ => seq(
       $._immediate_opcode,
       '#',
       $._expr
     ),
+    absolute: $ => seq(
+      $._absolute_opcode,
+      $._expr
+    ),
 
     _expr: $ => choice(
-      $._num_const
+      $.num_literal,
+      seq('(', $._expr, ')'),
+      $.binary_expr
     ),
-    _num_const: $ => choice(
-      $.dec_const,
-      $.bin_const,
-      $.hex_const
-    ),
-    dec_const: $ => token(repeat1(/[0-9]/)),
-    bin_const: $ => token(seq('%', repeat1(/[01]/))),
-    hex_const: $ => token(seq('$', repeat1(/[0-9a-fA-F]/))),
+    num_literal: $ => {
+      const hex = /[0-9a-fA-F]/;
+      const decimal = /[0-9]/;
+      const hexDigits = seq(repeat1(hex));
+      const decimalDigits = seq(repeat1(decimal));
+      const binDigits = seq(repeat1(/[01]/));
+      return token(seq(
+        optional(/[-\+]/),
+        optional(choice('$', '%')),
+        choice(
+          seq(
+            choice(
+              decimalDigits,
+              seq('%', binDigits),
+              seq('$', hexDigits)
+            ),
+          ),
+        ),
+      ))
+    },
+
+    binary_expr: $ => prec.left(seq(
+      $._expr,
+      choice('+', '-', '*', '/', '<<', '>>', '&', "|"),
+      $._expr
+    )),
     
     
 
@@ -60,7 +84,14 @@ module.exports = grammar({
       $._txa,
       $._txs,
       $._tya,
-      $._wai
+      $._wai,
+
+      $._asl,
+      $._dec,
+      $._inc,
+      $._lsr,
+      $._rol,
+      $._ror
     ),
     _stack_opcode: $ => choice(
       $._brk,
@@ -101,6 +132,35 @@ module.exports = grammar({
       $._ldy,
       $._ora,
       $._sbc
+    ),
+
+    _absolute_opcode: $ => choice(
+      $._adc,
+      $._and,
+      $._asl,
+      $._bit,
+      $._cmp,
+      $._cpx,
+      $._cpy,
+      $._dec,
+      $._eor,
+      $._inc,
+      $._jmp,
+      $._jsr,
+      $._lda,
+      $._ldx,
+      $._ldy,
+      $._lsr,
+      $._ora,
+      $._rol,
+      $._ror,
+      $._sbc,
+      $._sta,
+      $._stx,
+      $._sty,
+      $._stz,
+      $._trb,
+      $._tsb
     ),
 
     _nop: $ => /[nN][oO][pP]/,
@@ -158,6 +218,9 @@ module.exports = grammar({
     _ldx: $ => /ldx/,
     _ldy: $ => /ldy/,
     _ora: $ => /ora/,
-    _sbc: $ => /sbc/
+    _sbc: $ => /sbc/,
+
+    _asl: $ => /asl/,
+    _lsr: $ => /lsr/
   }
 });
