@@ -1,0 +1,24 @@
+================================================================================
+Comments
+================================================================================
+
+; lol
+lda #5;heehee
+; comment ; comment
+	sta (5, x) ; comment
+
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (comment)
+  (immediate
+    (opcode)
+    (num_literal))
+  (comment)
+  (comment)
+  (indirect
+    (opcode)
+    (num_literal)
+    (register))
+  (comment))

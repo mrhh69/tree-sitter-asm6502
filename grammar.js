@@ -1,13 +1,38 @@
 module.exports = grammar({
   name: 'asm6502',
 
+
+
+  extras: $ => [
+    /\s|\\\r?\n/, // whitespace control
+    $.comment,
+  ],
+
   rules: {
-    // TODO: add the actual grammar rules
     source_file: $ => repeat($._statement),
 
+    comment: $ => /;.*/,
+
     _statement: $ => choice(
-      $._operation
+      $._operation,
+      $.label
     ),
+
+
+
+
+    /* labels */
+
+    label: $ => seq(
+      choice($.local_label, $.global_label),
+      ':'
+    ),
+
+    local_label:  $ => token(seq('.'), repeat1(/[a-zA-Z0-9.]/)),
+    global_label: $ => token(/[a-zA-Z0-9]/, repeat1(/[a-zA-Z0-9.]/)),
+
+
+    /* operation definitions */
 
     _operation: $ => choice(
       $.implied,
@@ -50,32 +75,29 @@ module.exports = grammar({
       ))
     ),
 
+
+
+
+
+    /* expression definitions */
+
     _expr: $ => (choice(
       $.num_literal,
+      $.local_label,
+      $.global_label,
       seq('(', $._expr, ')'),
       $.binary_expr
     )),
 
-    num_literal: $ => {
-      const hex = /[0-9a-fA-F]/;
-      const decimal = /[0-9]/;
-      const hexDigits = seq(repeat1(hex));
-      const decimalDigits = seq(repeat1(decimal));
-      const binDigits = seq(repeat1(/[01]/));
-      return token(seq(
-        optional(/[-\+]/),
-        optional(choice('$', '%')),
-        choice(
-          seq(
-            choice(
-              decimalDigits,
-              seq('%', binDigits),
-              seq('$', hexDigits)
-            ),
-          ),
-        ),
-      ))
-    },
+    num_literal: $ => seq(
+      // should this be an operator? or just part of the literal?
+      alias(optional(/[-\+]/), $.operator),
+      token(choice(
+        repeat1(/[0-9]/),
+        seq('%', repeat1(/[01]/)),
+        seq('$', repeat1(/[0-9a-fA-F]/))
+      )),
+    ),
 
     binary_expr: $ => prec.left(seq(
       $._expr,
@@ -84,6 +106,12 @@ module.exports = grammar({
     )),
 
 
+
+
+
+
+
+    /* opcode definitions */
 
     _implied_opcode: $ => alias(choice(
       $._nop,
