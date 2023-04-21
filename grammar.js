@@ -13,7 +13,9 @@ module.exports = grammar({
       $.implied,
       $.stack,
       $.relative,
-      $.immediate
+      $.immediate,
+      $.absolute,
+      $.indirect
     ),
 
     implied: $ => seq($._implied_opcode),
@@ -26,15 +28,22 @@ module.exports = grammar({
       $._expr
     ),
     absolute: $ => seq(
-      $._absolute_opcode,
-      $._expr
+      choice($._absolute_opcode, $._abs_x_opcode, $._abs_y_opcode),
+      $._expr,
+      optional(seq(',', choice('x', 'y')))
+    ),
+    // indirect comes before absolute
+    indirect: $ => seq(
+      choice($._indirect_opcode, $._x_ind_opcode, $._ind_y_opcode),
+      '(', $._expr, optional(seq(',', 'x')), ')', optional(seq(',', 'y'))
     ),
 
-    _expr: $ => choice(
+    _expr: $ => (choice(
       $.num_literal,
       seq('(', $._expr, ')'),
       $.binary_expr
-    ),
+    )),
+
     num_literal: $ => {
       const hex = /[0-9a-fA-F]/;
       const decimal = /[0-9]/;
@@ -134,7 +143,7 @@ module.exports = grammar({
       $._sbc
     ),
 
-    _absolute_opcode: $ => choice(
+    _absolute_opcode: $ => prec(1, choice(
       $._adc,
       $._and,
       $._asl,
@@ -161,13 +170,86 @@ module.exports = grammar({
       $._stz,
       $._trb,
       $._tsb
+    )),
+
+    _abs_x_opcode: $ => choice(
+      $._adc,
+      $._and,
+      $._asl,
+      $._bit,
+      $._cmp,
+      $._dec,
+      $._eor,
+      $._inc,
+      $._lda,
+      $._ldy,
+      $._lsr,
+      $._ora,
+      $._rol,
+      $._ror,
+      $._sbc,
+      $._sta,
+      $._stz,
+
+      $._sty
     ),
+
+    _abs_y_opcode: $ => choice(
+      $._adc,
+      $._and,
+      $._cmp,
+      $._eor,
+      $._lda,
+      $._ldx,
+      $._ora,
+      $._sbc,
+      $._sta,
+
+      $._stx
+    ),
+
+    _indirect_opcode: $ => prec(2, choice(
+      $._jmp,
+
+      $._adc,
+      $._and,
+      $._cmp,
+      $._eor,
+      $._lda,
+      $._ora,
+      $._sbc,
+      $._sta
+    )),
+
+    _x_ind_opcode: $ => (choice(
+      $._jmp,
+
+      $._adc,
+      $._and,
+      $._cmp,
+      $._eor,
+      $._lda,
+      $._ora,
+      $._sbc,
+      $._sta
+    )),
+
+    _ind_y_opcode: $ => (choice(
+      $._adc,
+      $._and,
+      $._cmp,
+      $._eor,
+      $._lda,
+      $._ora,
+      $._sbc,
+      $._sta
+    )),
 
     _adc: $ => /[aA][dD][cC]/,
     _and: $ => /[aA][nN][dD]/,
     _asl: $ => /[aA][sS][lL]/,
-    _bbr: $ => /[bB][bB][rR]/,
-    _bbs: $ => /[bB][bB][sS]/,
+    //_bbr: $ => /[bB][bB][rR]/,
+    //_bbs: $ => /[bB][bB][sS]/,
     _bcc: $ => /[bB][cC][cC]/,
     _bcs: $ => /[bB][cC][sS]/,
     _beq: $ => /[bB][eE][qQ]/,

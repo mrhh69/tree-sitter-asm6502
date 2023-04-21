@@ -1,0 +1,11 @@
+==================
+Absolute
+==================
+
+lda 1+(5)
+
+---
+
+(source_file
+  (operation (absolute (binary_expr (num_literal) (num_literal))))
+)

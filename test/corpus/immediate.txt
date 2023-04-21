@@ -4,13 +4,13 @@ Immediate
 
 lda #%01
 lda #10+5+6
-lda #(((((((((5*5)))))))))
+lda #(((((((((5)))))))))
 
 ---
 
 (source_file
   (operation (immediate (num_literal)))
-  (operation (immediate 
+  (operation (immediate
     (binary_expr
       (binary_expr (num_literal) (num_literal))
       (num_literal)

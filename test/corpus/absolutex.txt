@@ -1,0 +1,13 @@
+==================
+Absolute X/Y
+==================
+
+lda 5, x
+lda $69, y
+
+---
+
+(source_file
+  (operation (absolute (num_literal)))
+  (operation (absolute (num_literal)))
+)
