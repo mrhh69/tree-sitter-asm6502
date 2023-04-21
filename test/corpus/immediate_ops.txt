@@ -1,6 +1,6 @@
-==================
+================================================================================
 Immediate Opcodes
-==================
+================================================================================
 adc #0
 and #0
 bit #0
@@ -13,19 +13,42 @@ ldx #0
 ldy #0
 ora #0
 sbc #0
----
+--------------------------------------------------------------------------------
 
 (source_file
-  (operation (immediate (num_literal)))
-  (operation (immediate (num_literal)))
-  (operation (immediate (num_literal)))
-  (operation (immediate (num_literal)))
-  (operation (immediate (num_literal)))
-  (operation (immediate (num_literal)))
-  (operation (immediate (num_literal)))
-  (operation (immediate (num_literal)))
-  (operation (immediate (num_literal)))
-  (operation (immediate (num_literal)))
-  (operation (immediate (num_literal)))
-  (operation (immediate (num_literal)))
-)
+  (immediate
+    (opcode)
+    (num_literal))
+  (immediate
+    (opcode)
+    (num_literal))
+  (immediate
+    (opcode)
+    (num_literal))
+  (immediate
+    (opcode)
+    (num_literal))
+  (immediate
+    (opcode)
+    (num_literal))
+  (immediate
+    (opcode)
+    (num_literal))
+  (immediate
+    (opcode)
+    (num_literal))
+  (immediate
+    (opcode)
+    (num_literal))
+  (immediate
+    (opcode)
+    (num_literal))
+  (immediate
+    (opcode)
+    (num_literal))
+  (immediate
+    (opcode)
+    (num_literal))
+  (immediate
+    (opcode)
+    (num_literal)))

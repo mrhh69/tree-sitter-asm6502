@@ -1,6 +1,6 @@
-==================
+================================================================================
 Implied Opcodes
-==================
+================================================================================
 
 nop
 Nop
@@ -29,34 +29,58 @@ txa
 txs
 tya
 wai
----
+--------------------------------------------------------------------------------
 
 (source_file
-  (operation (implied))
-  (operation (implied))
-  (operation (implied))
-  (operation (implied))
-  (operation (implied))
-  (operation (implied))
-  (operation (implied))
-
-  (operation (implied))
-  (operation (implied))
-  (operation (implied))
-  (operation (implied))
-  (operation (implied))
-  (operation (implied))
-  (operation (implied))
-  (operation (implied))
-  (operation (implied))
-  (operation (implied))
-  (operation (implied))
-  (operation (implied))
-  (operation (implied))
-  (operation (implied))
-  (operation (implied))
-  (operation (implied))
-  (operation (implied))
-  (operation (implied))
-  (operation (implied))
-)
+  (implied
+    (opcode))
+  (implied
+    (opcode))
+  (implied
+    (opcode))
+  (implied
+    (opcode))
+  (implied
+    (opcode))
+  (implied
+    (opcode))
+  (implied
+    (opcode))
+  (implied
+    (opcode))
+  (implied
+    (opcode))
+  (implied
+    (opcode))
+  (implied
+    (opcode))
+  (implied
+    (opcode))
+  (implied
+    (opcode))
+  (implied
+    (opcode))
+  (implied
+    (opcode))
+  (implied
+    (opcode))
+  (implied
+    (opcode))
+  (implied
+    (opcode))
+  (implied
+    (opcode))
+  (implied
+    (opcode))
+  (implied
+    (opcode))
+  (implied
+    (opcode))
+  (implied
+    (opcode))
+  (implied
+    (opcode))
+  (implied
+    (opcode))
+  (implied
+    (opcode)))

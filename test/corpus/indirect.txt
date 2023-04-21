@@ -1,15 +1,22 @@
-==================
+================================================================================
 Indirect
-==================
+================================================================================
 
 lda (5)
 lda (5,x)
 lda (%10), y
 
----
+--------------------------------------------------------------------------------
 
 (source_file
-  (operation (indirect (num_literal)))
-  (operation (indirect (num_literal)))
-  (operation (indirect (num_literal)))
-)
+  (indirect
+    (opcode)
+    (num_literal))
+  (indirect
+    (opcode)
+    (num_literal)
+    (register))
+  (indirect
+    (opcode)
+    (num_literal)
+    (register)))

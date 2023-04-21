@@ -1,6 +1,6 @@
-==================
+================================================================================
 Stack Opcodes
-==================
+================================================================================
 
 brk
 pha
@@ -13,18 +13,28 @@ plx
 ply
 rti
 rts
----
+--------------------------------------------------------------------------------
 
 (source_file
-  (operation (stack))
-  (operation (stack))
-  (operation (stack))
-  (operation (stack))
-  (operation (stack))
-  (operation (stack))
-  (operation (stack))
-  (operation (stack))
-  (operation (stack))
-  (operation (stack))
-  (operation (stack))
-)
+  (stack
+    (opcode))
+  (stack
+    (opcode))
+  (stack
+    (opcode))
+  (stack
+    (opcode))
+  (stack
+    (opcode))
+  (stack
+    (opcode))
+  (stack
+    (opcode))
+  (stack
+    (opcode))
+  (stack
+    (opcode))
+  (stack
+    (opcode))
+  (stack
+    (opcode)))

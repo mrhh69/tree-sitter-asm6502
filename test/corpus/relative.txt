@@ -1,6 +1,6 @@
-==================
+================================================================================
 Relative Opcodes
-==================
+================================================================================
 bcc
 bcs
 beq
@@ -10,16 +10,24 @@ bpl
 bra
 bvc
 bvs
----
+--------------------------------------------------------------------------------
 
 (source_file
-  (operation (relative))
-  (operation (relative))
-  (operation (relative))
-  (operation (relative))
-  (operation (relative))
-  (operation (relative))
-  (operation (relative))
-  (operation (relative))
-  (operation (relative))
-)
+  (relative
+    (opcode))
+  (relative
+    (opcode))
+  (relative
+    (opcode))
+  (relative
+    (opcode))
+  (relative
+    (opcode))
+  (relative
+    (opcode))
+  (relative
+    (opcode))
+  (relative
+    (opcode))
+  (relative
+    (opcode)))
