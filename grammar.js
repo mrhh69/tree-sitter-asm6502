@@ -4,8 +4,15 @@ module.exports = grammar({
 
 
   extras: $ => [
-    /\s|\\\r?\n/, // whitespace control
+    /\s/, // whitespace control
+    //' ', '\t',
     $.comment,
+  ],
+
+  conflicts: $ => [
+    [$.global_label],
+    //[$.global_label, $.local_label, $.include_directive, $.extern_directive],
+    [$.local_label],
   ],
 
   rules: {
@@ -15,37 +22,112 @@ module.exports = grammar({
 
     _statement: $ => choice(
       $._operation,
-      $.label
+      $.label,
+      $.assignment,
+      $._directive,
     ),
 
 
 
+    _directive: $ => choice(
+      $.include_directive,
+      $.extern_directive,
+      $.section_directive,
+      $.imm_directive,
+    ),
+
+    include_directive: $ => seq(
+      $._inc_name,
+      $._ws_sep,
+      alias(token.immediate(
+        choice(
+          repeat1(choice('.', '_', /[a-zA-Z0-9]/)),
+          seq('"', repeat1(choice('.', '_', /[a-zA-Z0-9]/)), '"'),
+        )
+      ), $.file_name),
+      $._ws_end,
+    ),
+
+    extern_directive: $ => seq(
+      $._ext_name,
+      $._ws_sep,
+      alias(token.immediate(seq(
+        /[a-zA-Z_]/,
+        repeat(choice('.', '_', /[a-zA-Z0-9]/)),
+      )), $.global_label),
+      $._ws_end,
+    ),
+
+    section_directive: $ => seq(
+      $._sec_name,
+      $._ws_sep,
+      alias(token.immediate(seq(
+        choice('.', /[a-zA-Z_]/),
+        repeat(choice('.', /[a-zA-Z0-9_]/)),
+      )), $.section_name),
+      $._ws_end,
+    ),
+
+    // directive w/ expr
+    imm_directive: $ => seq(
+      choice($._word_name, $._byte_name),
+      $._expr,
+      $._ws_end,
+    ),
+
+    _ws_sep: $ => token.immediate(/[ \t]+/),
+    _ws_end: $ => token.immediate(/[ \t]*\n/),
+
+    _inc_name:  $ => alias(token( seq(optional('.'), 'include') ), $.directive),
+    _ext_name:  $ => alias(token( seq(optional('.'), 'extern' ) ), $.directive),
+    _sec_name:  $ => alias(token( seq(optional('.'), 'section') ), $.directive),
+    _word_name: $ => alias(token( seq(optional('.'), 'word'   ) ), $.directive),
+    _byte_name: $ => alias(token( seq(optional('.'), 'byte'   ) ), $.directive),
+
+
+
+    assignment: $ => seq(
+      $.global_label,
+      '=',
+      $._expr,
+    ),
 
     /* labels */
 
     label: $ => seq(
       choice($.local_label, $.global_label),
-      ':'
+      ':',
+      //'\n',
     ),
 
-    local_label:  $ => token(seq('.'), repeat1(/[a-zA-Z0-9.]/)),
-    global_label: $ => token(/[a-zA-Z0-9]/, repeat1(/[a-zA-Z0-9.]/)),
+    local_label:  $ => (seq(
+      '.',
+      repeat1($._label_char),
+    )),
+    global_label: $ => (seq(
+      /[a-zA-Z_]/,
+      repeat($._label_char),
+    )),
+    _label_char: $ => choice('.', '_', /[a-zA-Z0-9]/),
 
 
     /* operation definitions */
 
-    _operation: $ => choice(
-      $.implied,
-      $.stack,
-      $.relative,
-      $.immediate,
-      $.absolute,
-      $.indirect
+    _operation: $ => seq(
+      choice(
+        $.implied,
+        $.stack,
+        $.relative,
+        $.immediate,
+        $.absolute,
+        $.indirect
+      ),
+      //'\n',
     ),
 
     implied: $ => seq($._implied_opcode),
     stack: $ => seq($._stack_opcode),
-    relative: $ => seq($._relative_opcode),
+    relative: $ => seq($._relative_opcode, $._expr),
 
     immediate: $ => seq(
       $._immediate_opcode,
@@ -83,15 +165,20 @@ module.exports = grammar({
 
     _expr: $ => (choice(
       $.num_literal,
-      $.local_label,
-      $.global_label,
+      $._identifier,
       seq('(', $._expr, ')'),
-      $.binary_expr
+      $.binary_expr,
+      $.unary_expr,
     )),
 
+    _identifier: $ => seq(
+      choice(
+        $.local_label,
+        $.global_label
+      ),
+    ),
+
     num_literal: $ => seq(
-      // should this be an operator? or just part of the literal?
-      alias(optional(/[-\+]/), $.operator),
       token(choice(
         repeat1(/[0-9]/),
         seq('%', repeat1(/[01]/)),
@@ -103,6 +190,11 @@ module.exports = grammar({
       $._expr,
       alias(choice('+', '-', '*', '/', '<<', '>>', '&', "|"), $.operator),
       $._expr
+    )),
+    unary_expr: $ => prec(2, seq(
+      // should this be an operator? or just part of the literal?
+      alias(/[-\+<>]/, $.operator),
+      $._expr,
     )),
 
 

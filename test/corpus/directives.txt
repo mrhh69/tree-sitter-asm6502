@@ -1,0 +1,48 @@
+================================================================================
+Directives
+================================================================================
+
+.include h.itxts
+
+include cregs.s
+include "importantfile.s"
+
+.extern __label
+
+section text
+.section .text.entry
+
+.byte 5+5+_label
+
+
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (include_directive
+    (directive)
+    (file_name))
+  (include_directive
+    (directive)
+    (file_name))
+  (include_directive
+    (directive)
+    (file_name))
+  (extern_directive
+    (directive)
+    (global_label))
+  (section_directive
+    (directive)
+    (section_name))
+  (section_directive
+    (directive)
+    (section_name))
+  (imm_directive
+    (directive)
+    (binary_expr
+      (binary_expr
+        (num_literal)
+        (operator)
+        (num_literal))
+      (operator)
+      (global_label))))

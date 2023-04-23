@@ -1,0 +1,28 @@
+================================================================================
+Labels
+================================================================================
+
+
+label:
+  lda #0
+
+.label2:
+  sta (label+5,x)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (label
+    (global_label))
+  (immediate
+    (opcode)
+    (num_literal))
+  (label
+    (local_label))
+  (indirect
+    (opcode)
+    (binary_expr
+      (global_label)
+      (operator)
+      (num_literal))
+    (register)))
