@@ -3,7 +3,7 @@ Comments
 ================================================================================
 
 ; lol
-lda #5;heehee
+lda #5 ;heehee
 ; comment ; comment
 	sta (5, x) ; comment
 
@@ -14,8 +14,8 @@ lda #5;heehee
   (comment)
   (immediate
     (opcode)
-    (num_literal))
-  (comment)
+    (num_literal)
+    (comment))
   (comment)
   (indirect
     (opcode)

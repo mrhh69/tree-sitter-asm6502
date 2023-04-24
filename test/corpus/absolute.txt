@@ -2,14 +2,10 @@
 Absolute
 ================================================================================
 
-lda 1+(5)
+lda label
 
 --------------------------------------------------------------------------------
 
 (source_file
-  (absolute
-    (opcode)
-    (binary_expr
-      (num_literal)
-      (operator)
-      (num_literal))))
+  (ERROR
+    (opcode)))

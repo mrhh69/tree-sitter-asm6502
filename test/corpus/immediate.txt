@@ -2,25 +2,16 @@
 Immediate
 ================================================================================
 
-lda #%01
-lda #10+5+6
-lda #(((((((((5)))))))))
+lda #(5+ -5)
 
 --------------------------------------------------------------------------------
 
 (source_file
   (immediate
     (opcode)
-    (num_literal))
-  (immediate
-    (opcode)
     (binary_expr
-      (binary_expr
-        (num_literal)
-        (operator)
-        (num_literal))
+      (num_literal)
       (operator)
-      (num_literal)))
-  (immediate
-    (opcode)
-    (num_literal)))
+      (unary_expr
+        (operator)
+        (num_literal)))))

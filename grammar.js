@@ -13,6 +13,10 @@ module.exports = grammar({
     [$.global_label],
     //[$.global_label, $.local_label, $.include_directive, $.extern_directive],
     [$.local_label],
+
+    [$._indirect_opcode, $._immediate_opcode, $._x_ind_opcode, $._ind_y_opcode],
+    [$._indirect_opcode, $._x_ind_opcode],
+    [$._indirect_opcode, $._x_ind_opcode, $._ind_y_opcode],
   ],
 
   rules: {
@@ -97,7 +101,6 @@ module.exports = grammar({
     label: $ => seq(
       choice($.local_label, $.global_label),
       ':',
-      //'\n',
     ),
 
     local_label:  $ => (seq(
@@ -119,32 +122,40 @@ module.exports = grammar({
         $.stack,
         $.relative,
         $.immediate,
-        $.absolute,
+        //$.absolute,
         $.indirect
       ),
       //'\n',
     ),
 
-    implied: $ => seq($._implied_opcode),
+    implied: $ => seq(
+      $._implied_opcode,
+      $._ws_end,
+    ),
     stack: $ => seq($._stack_opcode),
     relative: $ => seq($._relative_opcode, $._expr),
 
     immediate: $ => seq(
       $._immediate_opcode,
+      $._ws_sep,
       '#',
-      $._expr
+      $._expr,
+      $._ws_end,
     ),
     absolute: $ => seq(
       choice($._absolute_opcode, $._abs_x_opcode, $._abs_y_opcode),
+      $._ws_sep,
       $._expr,
       optional(seq(
         ',',
         alias(choice('x', 'y'), $.register)
-      ))
+      )),
+      $._ws_end,
     ),
     // indirect comes before absolute
     indirect: $ => seq(
       choice($._indirect_opcode, $._x_ind_opcode, $._ind_y_opcode),
+      $._ws_sep,
       '(',
         $._expr, optional(seq(
           ',',
@@ -154,7 +165,8 @@ module.exports = grammar({
       optional(seq(
         ',',
         alias('y', $.register)
-      ))
+      )),
+      $._ws_end,
     ),
 
 
@@ -276,7 +288,7 @@ module.exports = grammar({
       $._sbc
     ), $.opcode),
 
-    _absolute_opcode: $ => alias(prec(1, choice(
+    _absolute_opcode: $ => alias((choice(
       $._adc,
       $._and,
       $._asl,
@@ -341,7 +353,7 @@ module.exports = grammar({
       $._stx
     ), $.opcode),
 
-    _indirect_opcode: $ => alias(prec(2, choice(
+    _indirect_opcode: $ => alias((choice(
       $._jmp,
 
       $._adc,
