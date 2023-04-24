@@ -1,0 +1,4 @@
+
+# make compiled source files *NOT* show up in diff's and *NOT* show up in merge conlicts
+src/       -merge -diff
+bindings/  -merge -diff
