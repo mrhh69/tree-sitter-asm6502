@@ -14,8 +14,8 @@ lda #5 ;heehee
   (comment)
   (immediate
     (opcode)
-    (num_literal)
-    (comment))
+    (num_literal))
+  (comment)
   (comment)
   (indirect
     (opcode)

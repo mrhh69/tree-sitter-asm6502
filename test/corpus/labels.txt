@@ -8,6 +8,7 @@ label:
 
 .label2:
   sta (label+5,x)
+label: lda #0
 
 --------------------------------------------------------------------------------
 
@@ -25,4 +26,9 @@ label:
       (global_label)
       (operator)
       (num_literal))
-    (register)))
+    (register))
+  (label
+    (global_label))
+  (immediate
+    (opcode)
+    (num_literal)))

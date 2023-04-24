@@ -2,10 +2,22 @@
 Absolute
 ================================================================================
 
-lda label
+lda __label
+lda 5+label
+sta .local_label
 
 --------------------------------------------------------------------------------
 
 (source_file
-  (ERROR
-    (opcode)))
+  (absolute
+    (opcode)
+    (global_label))
+  (absolute
+    (opcode)
+    (binary_expr
+      (num_literal)
+      (operator)
+      (global_label)))
+  (absolute
+    (opcode)
+    (local_label)))

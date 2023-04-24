@@ -8,9 +8,11 @@ lda $69, y
 --------------------------------------------------------------------------------
 
 (source_file
-  (ERROR
+  (absolute
     (opcode)
-    (register)
+    (num_literal)
+    (register))
+  (absolute
     (opcode)
-    (UNEXPECTED '$')
+    (num_literal)
     (register)))

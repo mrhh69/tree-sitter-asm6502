@@ -14,9 +14,9 @@ module.exports = grammar({
     //[$.global_label, $.local_label, $.include_directive, $.extern_directive],
     [$.local_label],
 
-    [$._indirect_opcode, $._immediate_opcode, $._x_ind_opcode, $._ind_y_opcode],
-    [$._indirect_opcode, $._x_ind_opcode],
-    [$._indirect_opcode, $._x_ind_opcode, $._ind_y_opcode],
+    [$._immediate_opcode, $._absolute_opcode, $._indirect_opcode],
+    [$._immediate_opcode, $._absolute_opcode],
+    [$._absolute_opcode, $._indirect_opcode],
   ],
 
   rules: {
@@ -79,8 +79,8 @@ module.exports = grammar({
       $._ws_end,
     ),
 
-    _ws_sep: $ => token.immediate(/[ \t]+/),
-    _ws_end: $ => token.immediate(/[ \t]*\n/),
+    _ws_sep: $ => token.immediate( repeat1(choice(' ', '\t')) ),
+    _ws_end: $ => token.immediate( seq(repeat(choice(' ', '\t')), '\n') ),
 
     _inc_name:  $ => alias(token( seq(optional('.'), 'include') ), $.directive),
     _ext_name:  $ => alias(token( seq(optional('.'), 'extern' ) ), $.directive),
@@ -113,66 +113,7 @@ module.exports = grammar({
     )),
     _label_char: $ => choice('.', '_', /[a-zA-Z0-9]/),
 
-
-    /* operation definitions */
-
-    _operation: $ => seq(
-      choice(
-        $.implied,
-        $.stack,
-        $.relative,
-        $.immediate,
-        //$.absolute,
-        $.indirect
-      ),
-      //'\n',
-    ),
-
-    implied: $ => seq(
-      $._implied_opcode,
-      $._ws_end,
-    ),
-    stack: $ => seq($._stack_opcode),
-    relative: $ => seq($._relative_opcode, $._expr),
-
-    immediate: $ => seq(
-      $._immediate_opcode,
-      $._ws_sep,
-      '#',
-      $._expr,
-      $._ws_end,
-    ),
-    absolute: $ => seq(
-      choice($._absolute_opcode, $._abs_x_opcode, $._abs_y_opcode),
-      $._ws_sep,
-      $._expr,
-      optional(seq(
-        ',',
-        alias(choice('x', 'y'), $.register)
-      )),
-      $._ws_end,
-    ),
-    // indirect comes before absolute
-    indirect: $ => seq(
-      choice($._indirect_opcode, $._x_ind_opcode, $._ind_y_opcode),
-      $._ws_sep,
-      '(',
-        $._expr, optional(seq(
-          ',',
-          alias('x', $.register)
-        )),
-      ')',
-      optional(seq(
-        ',',
-        alias('y', $.register)
-      )),
-      $._ws_end,
-    ),
-
-
-
-
-
+    
     /* expression definitions */
 
     _expr: $ => (choice(
@@ -193,23 +134,71 @@ module.exports = grammar({
     num_literal: $ => seq(
       token(choice(
         repeat1(/[0-9]/),
-        seq('%', repeat1(/[01]/)),
-        seq('$', repeat1(/[0-9a-fA-F]/))
+        seq('%', token.immediate(repeat1(/[01]/))),
+        seq('$', token.immediate(repeat1(/[0-9a-fA-F]/)))
       )),
     ),
 
     binary_expr: $ => prec.left(seq(
       $._expr,
       alias(choice('+', '-', '*', '/', '<<', '>>', '&', "|"), $.operator),
-      $._expr
+      $._expr,
     )),
     unary_expr: $ => prec(2, seq(
       // should this be an operator? or just part of the literal?
       alias(/[-\+<>]/, $.operator),
       $._expr,
+    )),    
+
+
+    
+
+    /* operation definitions */
+
+    _operation: $ => seq(
+      choice(
+        $.implied,
+        $.relative,
+        $.immediate,
+        $.absolute,
+        $.indirect
+      ),
+      $._ws_end,
+    ),
+
+    implied: $ => seq($._implied_opcode),
+    relative: $ => seq($._relative_opcode, $._ws_sep, $._expr),
+
+    immediate: $ => seq(
+      $._immediate_opcode,
+      $._ws_sep,
+      '#',
+      $._expr,
+    ),
+    absolute: $ => prec.dynamic(1, seq(
+      $._absolute_opcode,
+      $._ws_sep,
+      $._expr,
+      optional(seq(
+        ',',
+        alias(choice('x', 'y'), $.register)
+      )),
     )),
-
-
+    // indirect comes before absolute
+    indirect: $ => prec.dynamic(2, seq(
+      $._indirect_opcode,
+      $._ws_sep,
+      '(',
+        $._expr, optional(seq(
+          ',',
+          alias('x', $.register)
+        )),
+      ')',
+      optional(seq(
+        ',',
+        alias('y', $.register)
+      )),
+    )),
 
 
 
@@ -238,16 +227,14 @@ module.exports = grammar({
       $._txs,
       $._tya,
       $._wai,
-
+      // a register
       $._asl,
       $._dec,
       $._inc,
       $._lsr,
       $._rol,
-      $._ror
-    ), $.opcode),
-
-    _stack_opcode: $ => alias(choice(
+      $._ror,
+      // stack based
       $._brk,
       $._pha,
       $._php,
@@ -258,7 +245,7 @@ module.exports = grammar({
       $._plx,
       $._ply,
       $._rti,
-      $._rts
+      $._rts,
     ), $.opcode),
 
     _relative_opcode: $ => alias(choice(
@@ -314,10 +301,8 @@ module.exports = grammar({
       $._sty,
       $._stz,
       $._trb,
-      $._tsb
-    )), $.opcode),
-
-    _abs_x_opcode: $ => alias(choice(
+      $._tsb,
+      // abs,x
       $._adc,
       $._and,
       $._asl,
@@ -335,11 +320,9 @@ module.exports = grammar({
       $._sbc,
       $._sta,
       $._stz,
-
-      $._sty
-    ), $.opcode),
-
-    _abs_y_opcode: $ => alias(choice(
+      // zp,x
+      $._sty,
+      // abs,y
       $._adc,
       $._and,
       $._cmp,
@@ -349,26 +332,14 @@ module.exports = grammar({
       $._ora,
       $._sbc,
       $._sta,
-
-      $._stx
-    ), $.opcode),
-
-    _indirect_opcode: $ => alias((choice(
-      $._jmp,
-
-      $._adc,
-      $._and,
-      $._cmp,
-      $._eor,
-      $._lda,
-      $._ora,
-      $._sbc,
-      $._sta
+      // zp, y
+      $._stx,
     )), $.opcode),
 
-    _x_ind_opcode: $ => alias(choice(
+    _indirect_opcode: $ => alias((choice(
+      // ind abs
       $._jmp,
-
+      // ind zp
       $._adc,
       $._and,
       $._cmp,
@@ -376,10 +347,10 @@ module.exports = grammar({
       $._lda,
       $._ora,
       $._sbc,
-      $._sta
-    ), $.opcode),
-
-    _ind_y_opcode: $ => alias(choice(
+      $._sta,
+      // abs,x ind
+      $._jmp,
+      // zp,x ind
       $._adc,
       $._and,
       $._cmp,
@@ -387,9 +358,19 @@ module.exports = grammar({
       $._lda,
       $._ora,
       $._sbc,
-      $._sta
-    ), $.opcode),
+      $._sta,
+      // zp ind, y
+      $._adc,
+      $._and,
+      $._cmp,
+      $._eor,
+      $._lda,
+      $._ora,
+      $._sbc,
+      $._sta,
+    )), $.opcode),
 
+    
     _adc: $ => /[aA][dD][cC]/,
     _and: $ => /[aA][nN][dD]/,
     _asl: $ => /[aA][sS][lL]/,
@@ -459,7 +440,6 @@ module.exports = grammar({
     _txa: $ => /[tT][xX][aA]/,
     _txs: $ => /[tT][xX][sS]/,
     _tya: $ => /[tT][yY][aA]/,
-    _wai: $ => /[wW][aA][iI]/
-
+    _wai: $ => /[wW][aA][iI]/,
   },
 });
