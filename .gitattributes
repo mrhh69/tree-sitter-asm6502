@@ -2,3 +2,4 @@
 # make compiled source files *NOT* show up in diffs and *NOT* show up in merge conflicts and *NOT* be included as a used language by github
 src/**         -merge -diff linguist-vendored
 bindings/**    -merge -diff linguist-vendored
+binding.gyp    linguist-vendored
