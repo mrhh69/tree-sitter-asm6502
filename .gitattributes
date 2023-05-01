@@ -3,3 +3,4 @@
 src/**         -merge -diff linguist-vendored
 bindings/**    -merge -diff linguist-vendored
 binding.gyp    linguist-vendored
+*.wasm         -merge -diff linguist-vendored
