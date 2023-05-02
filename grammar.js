@@ -1,4 +1,5 @@
 const LETTERS = choice('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
+// const LETTERS = choice(/[aA]/, /[bB]/, /[cC]/, /[dD]/, /[eE]/, /[fF]/, /[gG]/, /[hH]/, /[iI]/, /[jJ]/, /[kK]/, /[lL]/, /[mM]/, /[nN]/, /[oO]/, /[pP]/, /[qQ]/, /[rR]/, /[sS]/, /[tT]/, /[uU]/, /[vV]/, /[wW]/, /[xX]/, /[yY]/, /[zZ]/);
 const WS = choice(' ', '\t');
 const NEWLINE = '\n';
 
@@ -197,7 +198,7 @@ module.exports = grammar({
     immediate: $ => seq(
       alias($._immediate_opcode, $.opcode),
       $._ws_sep,
-      '#',
+      token.immediate('#'),
       $._expr,
     ),
     absolute: $ => prec.dynamic(1, seq(
@@ -210,7 +211,7 @@ module.exports = grammar({
     indirect: $ => prec.dynamic(2, seq(
       alias($._indirect_opcode, $.opcode),
       $._ws_sep,
-      '(',
+      token.immediate('('),
         $._expr,
         optional($._reg_x),
       ')',
@@ -323,37 +324,9 @@ module.exports = grammar({
       seq(choice('t','T'),choice('r','R'),choice('b','B')),
       seq(choice('t','T'),choice('s','S'),choice('b','B')),
       // abs,x
-      seq(choice('a','A'),choice('d','D'),choice('c','C')),
-      seq(choice('a','A'),choice('n','N'),choice('d','D')),
-      seq(choice('a','A'),choice('s','S'),choice('l','L')),
-      seq(choice('b','B'),choice('i','I'),choice('t','T')),
-      seq(choice('c','C'),choice('m','M'),choice('p','P')),
-      seq(choice('d','D'),choice('e','E'),choice('c','C')),
-      seq(choice('e','E'),choice('o','O'),choice('r','R')),
-      seq(choice('i','I'),choice('n','N'),choice('c','C')),
-      seq(choice('l','L'),choice('d','D'),choice('a','A')),
-      seq(choice('l','L'),choice('d','D'),choice('y','Y')),
-      seq(choice('l','L'),choice('s','S'),choice('r','R')),
-      seq(choice('o','O'),choice('r','R'),choice('a','A')),
-      seq(choice('r','R'),choice('o','O'),choice('l','L')),
-      seq(choice('r','R'),choice('o','O'),choice('r','R')),
-      seq(choice('s','S'),choice('b','B'),choice('c','C')),
-      seq(choice('s','S'),choice('t','T'),choice('a','A')),
-      seq(choice('s','S'),choice('t','T'),choice('z','Z')),
       // zp,x
-      seq(choice('s','S'),choice('t','T'),choice('y','Y')),
       // abs,y
-      seq(choice('a','A'),choice('d','D'),choice('c','C')),
-      seq(choice('a','A'),choice('n','N'),choice('d','D')),
-      seq(choice('c','C'),choice('m','M'),choice('p','P')),
-      seq(choice('e','E'),choice('o','O'),choice('r','R')),
-      seq(choice('l','L'),choice('d','D'),choice('a','A')),
-      seq(choice('l','L'),choice('d','D'),choice('x','X')),
-      seq(choice('o','O'),choice('r','R'),choice('a','A')),
-      seq(choice('s','S'),choice('b','B'),choice('c','C')),
-      seq(choice('s','S'),choice('t','T'),choice('a','A')),
       // zp, y
-      seq(choice('s','S'),choice('t','T'),choice('x','X')),
     )),
 
     _indirect_opcode: $ => (choice(
@@ -369,25 +342,8 @@ module.exports = grammar({
       seq(choice('s','S'),choice('b','B'),choice('c','C')),
       seq(choice('s','S'),choice('t','T'),choice('a','A')),
       // abs,x ind
-      seq(choice('j','J'),choice('m','M'),choice('p','P')),
       // zp,x ind
-      seq(choice('a','A'),choice('d','D'),choice('c','C')),
-      seq(choice('a','A'),choice('n','N'),choice('d','D')),
-      seq(choice('c','C'),choice('m','M'),choice('p','P')),
-      seq(choice('e','E'),choice('o','O'),choice('r','R')),
-      seq(choice('l','L'),choice('d','D'),choice('a','A')),
-      seq(choice('o','O'),choice('r','R'),choice('a','A')),
-      seq(choice('s','S'),choice('b','B'),choice('c','C')),
-      seq(choice('s','S'),choice('t','T'),choice('a','A')),
       // zp ind, y
-      seq(choice('a','A'),choice('d','D'),choice('c','C')),
-      seq(choice('a','A'),choice('n','N'),choice('d','D')),
-      seq(choice('c','C'),choice('m','M'),choice('p','P')),
-      seq(choice('e','E'),choice('o','O'),choice('r','R')),
-      seq(choice('l','L'),choice('d','D'),choice('a','A')),
-      seq(choice('o','O'),choice('r','R'),choice('a','A')),
-      seq(choice('s','S'),choice('b','B'),choice('c','C')),
-      seq(choice('s','S'),choice('t','T'),choice('a','A')),
     )),
   },
 });
