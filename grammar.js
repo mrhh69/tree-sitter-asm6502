@@ -156,7 +156,7 @@ module.exports = grammar({
         $.absolute,
         $.indirect
       ),
-      $._ws_end,
+      //$._ws_end,
     ),
 
     implied: $ => seq( alias($._implied_opcode, $.opcode) ),
@@ -293,10 +293,6 @@ module.exports = grammar({
       /[sS][tT][zZ]/,
       /[tT][rR][bB]/,
       /[tT][sS][bB]/,
-      // abs,x
-      // zp,x
-      // abs,y
-      // zp, y
     )),
 
     _indirect_opcode: $ => (choice(
@@ -311,16 +307,9 @@ module.exports = grammar({
       /[oO][rR][aA]/,
       /[sS][bB][cC]/,
       /[sS][tT][aA]/,
-      // abs,x ind
-      // zp,x ind
-      // zp ind, y
     )),
 
-    local_label:  $ => (seq(
-      /\.[a-zA-Z0-9_]+/
-    )),
-    global_label: $ => (seq(
-      /[a-zA-Z_][a-zA-Z0-9_]+/,
-    )),
+    local_label:  $ => (/\.[a-zA-Z0-9_]+/),
+    global_label: $ => (/[a-zA-Z_][a-zA-Z0-9_]+/),
   },
 });

@@ -124,11 +124,6 @@
     }
   },
   {
-    "type": "global_label",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "imm_directive",
     "named": true,
     "fields": {},
@@ -289,11 +284,6 @@
         }
       ]
     }
-  },
-  {
-    "type": "local_label",
-    "named": true,
-    "fields": {}
   },
   {
     "type": "num_literal",
@@ -483,6 +473,14 @@
   },
   {
     "type": "file_name",
+    "named": true
+  },
+  {
+    "type": "global_label",
+    "named": true
+  },
+  {
+    "type": "local_label",
     "named": true
   },
   {
