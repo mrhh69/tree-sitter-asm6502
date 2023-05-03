@@ -2,6 +2,8 @@
 
 [vasm](http://sun.hasenbraten.de/vasm/) 65c02 oldstyle grammar for tree-sitter
 
+try it on the [playground](http://treesitter.rf.gd/)!
+
 # TODO
 
 - [ ] figure out enforcing newlines while maintaining good error recovery
