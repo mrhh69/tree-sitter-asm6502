@@ -14,6 +14,8 @@ section text
 
 .byte 5+5+_label
 
+.ascii "Hello, world!"
+asciiz "\0700lol\\escape\asequences\n\r\n!?>"
 
 
 --------------------------------------------------------------------------------
@@ -45,4 +47,16 @@ section text
         (operator)
         (num_literal))
       (operator)
-      (global_label))))
+      (global_label)))
+  (str_directive
+    (directive)
+    (string))
+  (str_directive
+    (directive)
+    (string
+      (escape)
+      (escape)
+      (escape)
+      (escape)
+      (escape)
+      (escape))))

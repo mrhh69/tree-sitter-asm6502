@@ -18,7 +18,7 @@ module.exports = grammar({
     [$._absolute_opcode, $._indirect_opcode],
   ],
 
-  rules: {tree
+  rules: {
     source_file: $ => repeat($._statement),
 
     _statement: $ => choice(
@@ -43,6 +43,7 @@ module.exports = grammar({
       $.label_directive,
       $.section_directive,
       $.imm_directive,
+      $.str_directive,
     ),
 
     /* ex: include */
@@ -78,11 +79,26 @@ module.exports = grammar({
       //$._ws_end,
     ),
 
+    str_directive: $ => seq(
+      choice($._ascii_name, $._asciiz_name),
+      $._ws_sep,
+      $.string,
+    ),
+    string: $ => seq(
+      '"', repeat(choice(
+        /./, 
+        alias(/\\[abefnrtv\\'"]/, $.escape),
+        alias(/\\[0-7][0-7]?[0-7]?/, $.escape), // octal (ex: \0)
+      )), '"',
+    ),
+
     _inc_name:  $ => alias(token( seq(optional('.'), 'include') ), $.directive),
     _ext_name:  $ => alias(token( seq(optional('.'), 'extern' ) ), $.directive),
     _sec_name:  $ => alias(token( seq(optional('.'), 'section') ), $.directive),
     _word_name: $ => alias(token( seq(optional('.'), 'word'   ) ), $.directive),
     _byte_name: $ => alias(token( seq(optional('.'), 'byte'   ) ), $.directive),
+    _ascii_name: $ => alias(token( seq(optional('.'), 'ascii'   ) ), $.directive),
+    _asciiz_name: $ => alias(token( seq(optional('.'), 'asciiz'   ) ), $.directive),
 
 
 
