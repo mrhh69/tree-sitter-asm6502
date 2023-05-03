@@ -1,10 +1,9 @@
 
 # make compiled source files *NOT* show up in diffs and *NOT* show up in merge conflicts and *NOT* be included as a used language by github
-src/**         -merge -diff linguist-vendored
-src/**/*       -merge -diff linguist-vendored
-src/*          -merge -diff linguist-vendored
-bindings/**    -merge -diff linguist-vendored
-bindings/**/*  -merge -diff linguist-vendored
-bindings/*     -merge -diff linguist-vendored
-binding.gyp    linguist-vendored
-*.wasm         -merge -diff linguist-vendored
+# note: github does not respect -diff (i think)
+src/**         -merge -diff linguist-generated=true
+src/**/*       -merge -diff linguist-generated=true
+bindings/**    -merge -diff linguist-generated=true
+bindings/**/*  -merge -diff linguist-generated=true
+binding.gyp    linguist-generated=true
+*.wasm         -merge -diff linguist-generated=true
