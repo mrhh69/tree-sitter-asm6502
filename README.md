@@ -4,8 +4,9 @@
 
 # TODO
 
+- [ ] figure out enforcing newlines while maintaining good error recovery
 - [ ] more directives
-    - [ ] string directives
+    - [x] string directives
     - [ ] macro directives
     - [ ] add all names as defined in docs
 - [ ] inline macro includes
