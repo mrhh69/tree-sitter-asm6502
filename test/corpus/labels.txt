@@ -9,8 +9,6 @@ label:
 .label2:
   sta (label+5,x)
 label: lda #0
-stack:
-  lda #5
 
 --------------------------------------------------------------------------------
 
@@ -29,11 +27,6 @@ stack:
       (operator)
       (num_literal))
     (register))
-  (label
-    (global_label))
-  (immediate
-    (opcode)
-    (num_literal))
   (label
     (global_label))
   (immediate

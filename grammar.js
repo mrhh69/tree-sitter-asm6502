@@ -1,5 +1,3 @@
-const LETTERS = choice('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
-// const LETTERS = choice(/[aA]/, /[bB]/, /[cC]/, /[dD]/, /[eE]/, /[fF]/, /[gG]/, /[hH]/, /[iI]/, /[jJ]/, /[kK]/, /[lL]/, /[mM]/, /[nN]/, /[oO]/, /[pP]/, /[qQ]/, /[rR]/, /[sS]/, /[tT]/, /[uU]/, /[vV]/, /[wW]/, /[xX]/, /[yY]/, /[zZ]/);
 const WS = choice(' ', '\t');
 const NEWLINE = '\n';
 
@@ -10,34 +8,17 @@ module.exports = grammar({
 
   extras: $ => [
     /\s/, // whitespace control
-    //' ', '\t',
     $.comment,
   ],
 
   conflicts: $ => [
-    /* NOTE: conflicts between a global_label and opcodes are handled like this:
-     * each letter in an opcode and in a label are treated as individual tokens by the lexer
-     * [see here](https://tree-sitter.github.io/tree-sitter/creating-parsers#lexical-precedence-vs-parse-precedence)
-     * then when there is a conflict between a label or opcode
-     * Ex: `stack:`
-     * tree sitter tries both, until it finds which is the correct to use
-     */
-    [$._label_char, $._immediate_opcode, $._absolute_opcode, $._indirect_opcode],
-    [$._label_char, $._absolute_opcode, $._implied_opcode],
-    [$._label_char, $._relative_opcode],
-    [$._label_char, $._immediate_opcode, $._absolute_opcode],
-    [$._label_char, $._implied_opcode, $._relative_opcode],
-    [$._label_char, $._implied_opcode],
-    [$._label_char, $._absolute_opcode, $._indirect_opcode],
-    [$._label_char, $._absolute_opcode],
-    [$._label_char, $._implied_opcode, $._absolute_opcode, $._indirect_opcode],
-
+    // operation conflicts (ex: sta #0, or sta 5)
     [$._immediate_opcode, $._absolute_opcode, $._indirect_opcode],
     [$._immediate_opcode, $._absolute_opcode],
     [$._absolute_opcode, $._indirect_opcode],
   ],
 
-  rules: {
+  rules: {tree
     source_file: $ => repeat($._statement),
 
     _statement: $ => choice(
@@ -58,49 +39,43 @@ module.exports = grammar({
 
 
     _directive: $ => choice(
-      $.include_directive,
-      $.extern_directive,
+      $.file_directive,
+      $.label_directive,
       $.section_directive,
       $.imm_directive,
     ),
 
-    include_directive: $ => seq(
-      $._inc_name,
+    /* ex: include */
+    file_directive: $ => seq(
+      choice($._inc_name),
       $._ws_sep,
-      alias(token.immediate(
-        choice(
-          repeat1(choice('.', '_', /[a-zA-Z0-9]/)),
-          seq('"', repeat1(choice('.', '_', /[a-zA-Z0-9]/)), '"'),
-        )
+      alias(choice(
+        /[._a-zA-Z0-9]+/,
+        /"[._a-zA-Z0-9]+"/,
       ), $.file_name),
-      $._ws_end,
+      //$._ws_end,
     ),
 
-    extern_directive: $ => seq(
-      $._ext_name,
+    /* ex: extern */
+    label_directive: $ => seq(
+      choice($._ext_name),
       $._ws_sep,
-      alias(token.immediate(seq(
-        /[a-zA-Z_]/,
-        repeat(choice('.', '_', /[a-zA-Z0-9]/)),
-      )), $.global_label),
-      $._ws_end,
+      $.global_label,
+      //$._ws_end,
     ),
 
     section_directive: $ => seq(
-      $._sec_name,
+      choice($._sec_name),
       $._ws_sep,
-      alias(token.immediate(seq(
-        choice('.', /[a-zA-Z_]/),
-        repeat(choice('.', /[a-zA-Z0-9_]/)),
-      )), $.section_name),
-      $._ws_end,
+      alias(/[._a-zA-Z][._a-zA-Z0-9]+/, $.section_name),
+      //$._ws_end,
     ),
 
     // directive w/ expr
     imm_directive: $ => seq(
       choice($._word_name, $._byte_name),
       $._expr,
-      $._ws_end,
+      //$._ws_end,
     ),
 
     _inc_name:  $ => alias(token( seq(optional('.'), 'include') ), $.directive),
@@ -124,17 +99,6 @@ module.exports = grammar({
       ':',
     ),
 
-    local_label:  $ => prec.right(seq(
-      '.',
-      repeat1($._ext_label_char),
-    )),
-    global_label: $ => prec.right(seq(
-      choice($._label_char, '_'),
-      repeat($._ext_label_char),
-    )),
-    _label_char: $ => choice(LETTERS),
-    _ext_label_char: $ => choice($._label_char, /[-_0-9]/),
-
 
     /* expression definitions */
 
@@ -146,20 +110,13 @@ module.exports = grammar({
       $.unary_expr,
     )),
 
-    _identifier: $ => seq(
-      choice(
-        $.local_label,
-        $.global_label
-      ),
-    ),
+    _identifier: $ => choice($.local_label, $.global_label),
 
-    num_literal: $ => seq(
-      token(choice(
-        repeat1(/[0-9]/),
-        seq('%', token.immediate(repeat1(/[01]/))),
-        seq('$', token.immediate(repeat1(/[0-9a-fA-F]/)))
-      )),
-    ),
+    num_literal: $ => token(choice(
+      repeat1(/[0-9]/),
+      seq('%', token.immediate(repeat1(/[01]/))),
+      seq('$', token.immediate(repeat1(/[0-9a-fA-F]/)))
+    )),
 
     binary_expr: $ => prec.left(seq(
       $._expr,
@@ -168,7 +125,7 @@ module.exports = grammar({
     )),
     unary_expr: $ => prec(2, seq(
       // TODO: should this be an operator? or just part of the literal?
-      alias(/[-\+<>]/, $.operator),
+      alias(/[-\+<>~]/, $.operator),
       $._expr,
     )),
 
@@ -185,7 +142,7 @@ module.exports = grammar({
         $.absolute,
         $.indirect
       ),
-      $._ws_end,
+      //$._ws_end,
     ),
 
     implied: $ => seq( alias($._implied_opcode, $.opcode) ),
@@ -212,10 +169,12 @@ module.exports = grammar({
       alias($._indirect_opcode, $.opcode),
       $._ws_sep,
       token.immediate('('),
-        $._expr,
-        optional($._reg_x),
-      ')',
-      optional($._reg_y),
+      $._expr,
+      choice(
+        seq(')'),
+        seq($._reg_x, ')'),
+        seq(')', $._reg_y),
+      ),
     )),
 
     _reg_x: $ => seq(',', alias('x', $.register)),
@@ -226,124 +185,119 @@ module.exports = grammar({
 
 
     /* opcode definitions */
-
     _implied_opcode: $ => (choice(
-      seq(choice('n','N'),choice('o','O'),choice('p','P')),
-      seq(choice('c','C'),choice('l','L'),choice('c','C')),
-      seq(choice('c','C'),choice('l','L'),choice('d','D')),
-      seq(choice('c','C'),choice('l','L'),choice('i','I')),
-      seq(choice('c','C'),choice('l','L'),choice('v','V')),
-      seq(choice('d','D'),choice('e','E'),choice('x','X')),
-      seq(choice('d','D'),choice('e','E'),choice('y','Y')),
-      seq(choice('i','I'),choice('n','N'),choice('x','X')),
-      seq(choice('i','I'),choice('n','N'),choice('y','Y')),
-      seq(choice('s','S'),choice('e','E'),choice('c','C')),
-      seq(choice('s','S'),choice('e','E'),choice('d','D')),
-      seq(choice('s','S'),choice('e','E'),choice('i','I')),
-      seq(choice('s','S'),choice('t','T'),choice('p','P')),
-      seq(choice('t','T'),choice('a','A'),choice('x','X')),
-      seq(choice('t','T'),choice('a','A'),choice('y','Y')),
-      seq(choice('t','T'),choice('s','S'),choice('x','X')),
-      seq(choice('t','T'),choice('x','X'),choice('a','A')),
-      seq(choice('t','T'),choice('x','X'),choice('s','S')),
-      seq(choice('t','T'),choice('y','Y'),choice('a','A')),
-      seq(choice('w','W'),choice('a','A'),choice('i','I')),
+      /[nN][oO][pP]/,
+      /[cC][lL][cC]/,
+      /[cC][lL][dD]/,
+      /[cC][lL][iI]/,
+      /[cC][lL][vV]/,
+      /[dD][eE][xX]/,
+      /[dD][eE][yY]/,
+      /[iI][nN][xX]/,
+      /[iI][nN][yY]/,
+      /[sS][eE][cC]/,
+      /[sS][eE][dD]/,
+      /[sS][eE][iI]/,
+      /[sS][tT][pP]/,
+      /[tT][aA][xX]/,
+      /[tT][aA][yY]/,
+      /[tT][sS][xX]/,
+      /[tT][xX][aA]/,
+      /[tT][xX][sS]/,
+      /[tT][yY][aA]/,
+      /[wW][aA][iI]/,
       // a register
-      seq(choice('a','A'),choice('s','S'),choice('l','L')),
-      seq(choice('d','D'),choice('e','E'),choice('c','C')),
-      seq(choice('i','I'),choice('n','N'),choice('c','C')),
-      seq(choice('l','L'),choice('s','S'),choice('r','R')),
-      seq(choice('r','R'),choice('o','O'),choice('l','L')),
-      seq(choice('r','R'),choice('o','O'),choice('r','R')),
+      /[aA][sS][lL]/,
+      /[dD][eE][cC]/,
+      /[iI][nN][cC]/,
+      /[lL][sS][rR]/,
+      /[rR][oO][lL]/,
+      /[rR][oO][rR]/,
       // stack based
-      seq(choice('b','B'),choice('r','R'),choice('k','K')),
-      seq(choice('p','P'),choice('h','H'),choice('a','A')),
-      seq(choice('p','P'),choice('h','H'),choice('p','P')),
-      seq(choice('p','P'),choice('h','H'),choice('x','X')),
-      seq(choice('p','P'),choice('h','H'),choice('y','Y')),
-      seq(choice('p','P'),choice('l','L'),choice('a','A')),
-      seq(choice('p','P'),choice('l','L'),choice('p','P')),
-      seq(choice('p','P'),choice('l','L'),choice('x','X')),
-      seq(choice('p','P'),choice('l','L'),choice('y','Y')),
-      seq(choice('r','R'),choice('t','T'),choice('i','I')),
-      seq(choice('r','R'),choice('t','T'),choice('s','S')),
+      /[bB][rR][kK]/,
+      /[pP][hH][aA]/,
+      /[pP][hH][pP]/,
+      /[pP][hH][xX]/,
+      /[pP][hH][yY]/,
+      /[pP][lL][aA]/,
+      /[pP][lL][pP]/,
+      /[pP][lL][xX]/,
+      /[pP][lL][yY]/,
+      /[rR][tT][iI]/,
+      /[rR][tT][sS]/,
     )),
 
     _relative_opcode: $ => (choice(
-      seq(choice('b','B'),choice('c','C'),choice('c','C')),
-      seq(choice('b','B'),choice('c','C'),choice('s','S')),
-      seq(choice('b','B'),choice('e','E'),choice('q','Q')),
-      seq(choice('b','B'),choice('m','M'),choice('i','I')),
-      seq(choice('b','B'),choice('n','N'),choice('e','E')),
-      seq(choice('b','B'),choice('p','P'),choice('l','L')),
-      seq(choice('b','B'),choice('r','R'),choice('a','A')),
-      seq(choice('b','B'),choice('v','V'),choice('c','C')),
-      seq(choice('b','B'),choice('v','V'),choice('s','S')),
+      /[bB][cC][cC]/,
+      /[bB][cC][sS]/,
+      /[bB][eE][qQ]/,
+      /[bB][mM][iI]/,
+      /[bB][nN][eE]/,
+      /[bB][pP][lL]/,
+      /[bB][rR][aA]/,
+      /[bB][vV][cC]/,
+      /[bB][vV][sS]/,
     )),
 
     _immediate_opcode: $ => (choice(
-      seq(choice('a','A'),choice('d','D'),choice('c','C')),
-      seq(choice('a','A'),choice('n','N'),choice('d','D')),
-      seq(choice('b','B'),choice('i','I'),choice('t','T')),
-      seq(choice('c','C'),choice('m','M'),choice('p','P')),
-      seq(choice('c','C'),choice('p','P'),choice('x','X')),
-      seq(choice('c','C'),choice('p','P'),choice('y','Y')),
-      seq(choice('e','E'),choice('o','O'),choice('r','R')),
-      seq(choice('l','L'),choice('d','D'),choice('a','A')),
-      seq(choice('l','L'),choice('d','D'),choice('x','X')),
-      seq(choice('l','L'),choice('d','D'),choice('y','Y')),
-      seq(choice('o','O'),choice('r','R'),choice('a','A')),
-      seq(choice('s','S'),choice('b','B'),choice('c','C')),
+      /[aA][dD][cC]/,
+      /[aA][nN][dD]/,
+      /[bB][iI][tT]/,
+      /[cC][mM][pP]/,
+      /[cC][pP][xX]/,
+      /[cC][pP][yY]/,
+      /[eE][oO][rR]/,
+      /[lL][dD][aA]/,
+      /[lL][dD][xX]/,
+      /[lL][dD][yY]/,
+      /[oO][rR][aA]/,
+      /[sS][bB][cC]/,
     )),
 
     _absolute_opcode: $ => (choice(
-      seq(choice('a','A'),choice('d','D'),choice('c','C')),
-      seq(choice('a','A'),choice('n','N'),choice('d','D')),
-      seq(choice('a','A'),choice('s','S'),choice('l','L')),
-      seq(choice('b','B'),choice('i','I'),choice('t','T')),
-      seq(choice('c','C'),choice('m','M'),choice('p','P')),
-      seq(choice('c','C'),choice('p','P'),choice('x','X')),
-      seq(choice('c','C'),choice('p','P'),choice('y','Y')),
-      seq(choice('d','D'),choice('e','E'),choice('c','C')),
-      seq(choice('e','E'),choice('o','O'),choice('r','R')),
-      seq(choice('i','I'),choice('n','N'),choice('c','C')),
-      seq(choice('j','J'),choice('m','M'),choice('p','P')),
-      seq(choice('j','J'),choice('s','S'),choice('r','R')),
-      seq(choice('l','L'),choice('d','D'),choice('a','A')),
-      seq(choice('l','L'),choice('d','D'),choice('x','X')),
-      seq(choice('l','L'),choice('d','D'),choice('y','Y')),
-      seq(choice('l','L'),choice('s','S'),choice('r','R')),
-      seq(choice('o','O'),choice('r','R'),choice('a','A')),
-      seq(choice('r','R'),choice('o','O'),choice('l','L')),
-      seq(choice('r','R'),choice('o','O'),choice('r','R')),
-      seq(choice('s','S'),choice('b','B'),choice('c','C')),
-      seq(choice('s','S'),choice('t','T'),choice('a','A')),
-      seq(choice('s','S'),choice('t','T'),choice('x','X')),
-      seq(choice('s','S'),choice('t','T'),choice('y','Y')),
-      seq(choice('s','S'),choice('t','T'),choice('z','Z')),
-      seq(choice('t','T'),choice('r','R'),choice('b','B')),
-      seq(choice('t','T'),choice('s','S'),choice('b','B')),
-      // abs,x
-      // zp,x
-      // abs,y
-      // zp, y
+      /[aA][dD][cC]/,
+      /[aA][nN][dD]/,
+      /[aA][sS][lL]/,
+      /[bB][iI][tT]/,
+      /[cC][mM][pP]/,
+      /[cC][pP][xX]/,
+      /[cC][pP][yY]/,
+      /[dD][eE][cC]/,
+      /[eE][oO][rR]/,
+      /[iI][nN][cC]/,
+      /[jJ][mM][pP]/,
+      /[jJ][sS][rR]/,
+      /[lL][dD][aA]/,
+      /[lL][dD][xX]/,
+      /[lL][dD][yY]/,
+      /[lL][sS][rR]/,
+      /[oO][rR][aA]/,
+      /[rR][oO][lL]/,
+      /[rR][oO][rR]/,
+      /[sS][bB][cC]/,
+      /[sS][tT][aA]/,
+      /[sS][tT][xX]/,
+      /[sS][tT][yY]/,
+      /[sS][tT][zZ]/,
+      /[tT][rR][bB]/,
+      /[tT][sS][bB]/,
     )),
 
     _indirect_opcode: $ => (choice(
       // ind abs
-      seq(choice('j','J'),choice('m','M'),choice('p','P')),
+      /[jJ][mM][pP]/,
       // ind zp
-      seq(choice('a','A'),choice('d','D'),choice('c','C')),
-      seq(choice('a','A'),choice('n','N'),choice('d','D')),
-      seq(choice('c','C'),choice('m','M'),choice('p','P')),
-      seq(choice('e','E'),choice('o','O'),choice('r','R')),
-      seq(choice('l','L'),choice('d','D'),choice('a','A')),
-      seq(choice('o','O'),choice('r','R'),choice('a','A')),
-      seq(choice('s','S'),choice('b','B'),choice('c','C')),
-      seq(choice('s','S'),choice('t','T'),choice('a','A')),
-      // abs,x ind
-      // zp,x ind
-      // zp ind, y
+      /[aA][dD][cC]/,
+      /[aA][nN][dD]/,
+      /[cC][mM][pP]/,
+      /[eE][oO][rR]/,
+      /[lL][dD][aA]/,
+      /[oO][rR][aA]/,
+      /[sS][bB][cC]/,
+      /[sS][tT][aA]/,
     )),
+
+    local_label:  $ => (/\.[a-zA-Z0-9_]+/),
+    global_label: $ => (/[a-zA-Z_][a-zA-Z0-9_]+/),
   },
 });

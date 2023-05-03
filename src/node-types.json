@@ -105,7 +105,7 @@
     }
   },
   {
-    "type": "extern_directive",
+    "type": "file_directive",
     "named": true,
     "fields": {},
     "children": {
@@ -117,16 +117,11 @@
           "named": true
         },
         {
-          "type": "global_label",
+          "type": "file_name",
           "named": true
         }
       ]
     }
-  },
-  {
-    "type": "global_label",
-    "named": true,
-    "fields": {}
   },
   {
     "type": "imm_directive",
@@ -214,25 +209,6 @@
     }
   },
   {
-    "type": "include_directive",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "directive",
-          "named": true
-        },
-        {
-          "type": "file_name",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "indirect",
     "named": true,
     "fields": {},
@@ -291,14 +267,23 @@
     }
   },
   {
-    "type": "local_label",
+    "type": "label_directive",
     "named": true,
-    "fields": {}
-  },
-  {
-    "type": "num_literal",
-    "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "directive",
+          "named": true
+        },
+        {
+          "type": "global_label",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "opcode",
@@ -376,7 +361,7 @@
           "named": true
         },
         {
-          "type": "extern_directive",
+          "type": "file_directive",
           "named": true
         },
         {
@@ -392,15 +377,15 @@
           "named": true
         },
         {
-          "type": "include_directive",
-          "named": true
-        },
-        {
           "type": "indirect",
           "named": true
         },
         {
           "type": "label",
+          "named": true
+        },
+        {
+          "type": "label_directive",
           "named": true
         },
         {
@@ -466,10 +451,6 @@
     "named": false
   },
   {
-    "type": ".",
-    "named": false
-  },
-  {
     "type": ":",
     "named": false
   },
@@ -478,239 +459,39 @@
     "named": false
   },
   {
-    "type": "A",
-    "named": false
-  },
-  {
-    "type": "B",
-    "named": false
-  },
-  {
-    "type": "C",
-    "named": false
-  },
-  {
-    "type": "D",
-    "named": false
-  },
-  {
-    "type": "E",
-    "named": false
-  },
-  {
-    "type": "F",
-    "named": false
-  },
-  {
-    "type": "G",
-    "named": false
-  },
-  {
-    "type": "H",
-    "named": false
-  },
-  {
-    "type": "I",
-    "named": false
-  },
-  {
-    "type": "J",
-    "named": false
-  },
-  {
-    "type": "K",
-    "named": false
-  },
-  {
-    "type": "L",
-    "named": false
-  },
-  {
-    "type": "M",
-    "named": false
-  },
-  {
-    "type": "N",
-    "named": false
-  },
-  {
-    "type": "O",
-    "named": false
-  },
-  {
-    "type": "P",
-    "named": false
-  },
-  {
-    "type": "Q",
-    "named": false
-  },
-  {
-    "type": "R",
-    "named": false
-  },
-  {
-    "type": "S",
-    "named": false
-  },
-  {
-    "type": "T",
-    "named": false
-  },
-  {
-    "type": "U",
-    "named": false
-  },
-  {
-    "type": "V",
-    "named": false
-  },
-  {
-    "type": "W",
-    "named": false
-  },
-  {
-    "type": "X",
-    "named": false
-  },
-  {
-    "type": "Y",
-    "named": false
-  },
-  {
-    "type": "Z",
-    "named": false
-  },
-  {
-    "type": "_",
-    "named": false
-  },
-  {
-    "type": "a",
-    "named": false
-  },
-  {
-    "type": "b",
-    "named": false
-  },
-  {
-    "type": "c",
-    "named": false
-  },
-  {
     "type": "comment",
     "named": true
-  },
-  {
-    "type": "d",
-    "named": false
   },
   {
     "type": "directive",
     "named": true
   },
   {
-    "type": "e",
-    "named": false
-  },
-  {
-    "type": "f",
-    "named": false
-  },
-  {
     "type": "file_name",
     "named": true
   },
   {
-    "type": "g",
-    "named": false
+    "type": "global_label",
+    "named": true
   },
   {
-    "type": "h",
-    "named": false
+    "type": "local_label",
+    "named": true
   },
   {
-    "type": "i",
-    "named": false
-  },
-  {
-    "type": "j",
-    "named": false
-  },
-  {
-    "type": "k",
-    "named": false
-  },
-  {
-    "type": "l",
-    "named": false
-  },
-  {
-    "type": "m",
-    "named": false
-  },
-  {
-    "type": "n",
-    "named": false
-  },
-  {
-    "type": "o",
-    "named": false
+    "type": "num_literal",
+    "named": true
   },
   {
     "type": "operator",
     "named": true
   },
   {
-    "type": "p",
-    "named": false
-  },
-  {
-    "type": "q",
-    "named": false
-  },
-  {
-    "type": "r",
-    "named": false
-  },
-  {
     "type": "register",
     "named": true
   },
   {
-    "type": "s",
-    "named": false
-  },
-  {
     "type": "section_name",
     "named": true
-  },
-  {
-    "type": "t",
-    "named": false
-  },
-  {
-    "type": "u",
-    "named": false
-  },
-  {
-    "type": "v",
-    "named": false
-  },
-  {
-    "type": "w",
-    "named": false
-  },
-  {
-    "type": "x",
-    "named": false
-  },
-  {
-    "type": "y",
-    "named": false
-  },
-  {
-    "type": "z",
-    "named": false
   }
 ]

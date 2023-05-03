@@ -19,16 +19,16 @@ section text
 --------------------------------------------------------------------------------
 
 (source_file
-  (include_directive
+  (file_directive
     (directive)
     (file_name))
-  (include_directive
+  (file_directive
     (directive)
     (file_name))
-  (include_directive
+  (file_directive
     (directive)
     (file_name))
-  (extern_directive
+  (label_directive
     (directive)
     (global_label))
   (section_directive
