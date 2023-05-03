@@ -8,7 +8,6 @@ module.exports = grammar({
 
   extras: $ => [
     /\s/, // whitespace control
-    //' ', '\t',
     $.comment,
   ],
 
@@ -19,7 +18,7 @@ module.exports = grammar({
     [$._absolute_opcode, $._indirect_opcode],
   ],
 
-  rules: {
+  rules: {tree
     source_file: $ => repeat($._statement),
 
     _statement: $ => choice(
@@ -40,49 +39,43 @@ module.exports = grammar({
 
 
     _directive: $ => choice(
-      $.include_directive,
-      $.extern_directive,
+      $.file_directive,
+      $.label_directive,
       $.section_directive,
       $.imm_directive,
     ),
 
-    include_directive: $ => seq(
-      $._inc_name,
+    /* ex: include */
+    file_directive: $ => seq(
+      choice($._inc_name),
       $._ws_sep,
-      alias(token.immediate(
-        choice(
-          repeat1(choice('.', '_', /[a-zA-Z0-9]/)),
-          seq('"', repeat1(choice('.', '_', /[a-zA-Z0-9]/)), '"'),
-        )
+      alias(choice(
+        /[._a-zA-Z0-9]+/,
+        /"[._a-zA-Z0-9]+"/,
       ), $.file_name),
-      $._ws_end,
+      //$._ws_end,
     ),
 
-    extern_directive: $ => seq(
-      $._ext_name,
+    /* ex: extern */
+    label_directive: $ => seq(
+      choice($._ext_name),
       $._ws_sep,
-      alias(token.immediate(seq(
-        /[a-zA-Z_]/,
-        repeat(choice('.', '_', /[a-zA-Z0-9]/)),
-      )), $.global_label),
-      $._ws_end,
+      $.global_label,
+      //$._ws_end,
     ),
 
     section_directive: $ => seq(
-      $._sec_name,
+      choice($._sec_name),
       $._ws_sep,
-      alias(token.immediate(seq(
-        choice('.', /[a-zA-Z_]/),
-        repeat(choice('.', /[a-zA-Z0-9_]/)),
-      )), $.section_name),
-      $._ws_end,
+      alias(/[._a-zA-Z][._a-zA-Z0-9]+/, $.section_name),
+      //$._ws_end,
     ),
 
     // directive w/ expr
     imm_directive: $ => seq(
       choice($._word_name, $._byte_name),
       $._expr,
-      $._ws_end,
+      //$._ws_end,
     ),
 
     _inc_name:  $ => alias(token( seq(optional('.'), 'include') ), $.directive),
@@ -117,20 +110,13 @@ module.exports = grammar({
       $.unary_expr,
     )),
 
-    _identifier: $ => seq(
-      choice(
-        $.local_label,
-        $.global_label
-      ),
-    ),
+    _identifier: $ => choice($.local_label, $.global_label),
 
-    num_literal: $ => seq(
-      token(choice(
-        repeat1(/[0-9]/),
-        seq('%', token.immediate(repeat1(/[01]/))),
-        seq('$', token.immediate(repeat1(/[0-9a-fA-F]/)))
-      )),
-    ),
+    num_literal: $ => token(choice(
+      repeat1(/[0-9]/),
+      seq('%', token.immediate(repeat1(/[01]/))),
+      seq('$', token.immediate(repeat1(/[0-9a-fA-F]/)))
+    )),
 
     binary_expr: $ => prec.left(seq(
       $._expr,
@@ -139,7 +125,7 @@ module.exports = grammar({
     )),
     unary_expr: $ => prec(2, seq(
       // TODO: should this be an operator? or just part of the literal?
-      alias(/[-\+<>]/, $.operator),
+      alias(/[-\+<>~]/, $.operator),
       $._expr,
     )),
 
@@ -183,10 +169,12 @@ module.exports = grammar({
       alias($._indirect_opcode, $.opcode),
       $._ws_sep,
       token.immediate('('),
-        $._expr,
-        optional($._reg_x),
-      ')',
-      optional($._reg_y),
+      $._expr,
+      choice(
+        seq(')'),
+        seq($._reg_x, ')'),
+        seq(')', $._reg_y),
+      ),
     )),
 
     _reg_x: $ => seq(',', alias('x', $.register)),

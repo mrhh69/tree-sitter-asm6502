@@ -105,7 +105,7 @@
     }
   },
   {
-    "type": "extern_directive",
+    "type": "file_directive",
     "named": true,
     "fields": {},
     "children": {
@@ -117,7 +117,7 @@
           "named": true
         },
         {
-          "type": "global_label",
+          "type": "file_name",
           "named": true
         }
       ]
@@ -209,25 +209,6 @@
     }
   },
   {
-    "type": "include_directive",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "directive",
-          "named": true
-        },
-        {
-          "type": "file_name",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "indirect",
     "named": true,
     "fields": {},
@@ -286,9 +267,23 @@
     }
   },
   {
-    "type": "num_literal",
+    "type": "label_directive",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "directive",
+          "named": true
+        },
+        {
+          "type": "global_label",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "opcode",
@@ -366,7 +361,7 @@
           "named": true
         },
         {
-          "type": "extern_directive",
+          "type": "file_directive",
           "named": true
         },
         {
@@ -382,15 +377,15 @@
           "named": true
         },
         {
-          "type": "include_directive",
-          "named": true
-        },
-        {
           "type": "indirect",
           "named": true
         },
         {
           "type": "label",
+          "named": true
+        },
+        {
+          "type": "label_directive",
           "named": true
         },
         {
@@ -481,6 +476,10 @@
   },
   {
     "type": "local_label",
+    "named": true
+  },
+  {
+    "type": "num_literal",
     "named": true
   },
   {
